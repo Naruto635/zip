@@ -1,0 +1,20 @@
+/* style.css */
+
+/* Add any custom styles here */
+
+body {
+  background-color: #f4f4f4;
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.btn-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}

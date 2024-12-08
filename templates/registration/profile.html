@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Your Profile - Goal Tracker</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/style.css' %}"
+    />
+    <style>
+      /* Custom styles for the profile page */
+      .profile-container {
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .profile-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333333;
+      }
+      .profile-container .detail {
+        margin-bottom: 15px;
+        color: #555555;
+      }
+      .chart-container {
+        position: relative;
+        margin: 40px auto;
+        height: 400px;
+        width: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="{% url 'home' %}">Goal Tracker</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a href="{% url 'profile' %}" class="nav-link"
+              >Welcome, {{ user.username }}</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'goal_list' %}">Your Goals</a>
+          </li>
+          <li class="nav-item">
+            <form
+              method="post"
+              action="{% url 'logout' %}"
+              style="display: inline"
+            >
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="nav-link btn btn-link"
+                style="display: inline; padding: 0; margin: 0"
+              >
+                Logout
+              </button>
+            </form>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Register</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="profile-container">
+        <h2>Your Profile</h2>
+        <p class="detail"><strong>Username:</strong> {{ user.username }}</p>
+        <p class="detail"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="detail"><strong>Points:</strong> {{ profile.points }}</p>
+        <a href="{% url 'goal_list' %}" class="btn btn-primary mt-3"
+          >View Your Goals</a
+        >
+
+        <!-- Chart Section -->
+        <div class="chart-container">
+          <canvas id="taskChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Include Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Retrieve data passed from the view
+      const labels = {{ chart_data.labels|safe }};
+      const data = {{ chart_data.data|safe }};
+
+      const ctx = document.getElementById('taskChart').getContext('2d');
+      const taskChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+              labels: labels,
+              datasets: [{
+                  label: 'Tasks Distribution',
+                  data: data,
+                  backgroundColor: [
+                      'rgba(40, 167, 69, 0.7)',    // Green for Completed
+                      'rgba(220, 53, 69, 0.7)'     // Red for Incomplete
+                  ],
+                  borderColor: [
+                      'rgba(40, 167, 69, 1)',
+                      'rgba(220, 53, 69, 1)'
+                  ],
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: 'top',
+                  },
+                  title: {
+                      display: true,
+                      text: 'Completed vs. Incomplete Tasks'
+                  }
+              }
+          },
+      });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
